@@ -1,0 +1,29 @@
+name: Delete Untagged ACR Manifests
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Delete untagged manifests
+        run: ./scripts/cleanup-acr-images.sh "${{ inputs.registry }}" "${{ inputs.repository }}"
